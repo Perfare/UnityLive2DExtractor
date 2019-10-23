@@ -28,9 +28,9 @@ namespace UnityLive2DExtractor
                 }
                 var assets = assetsManager.assetsFileList[0].Objects.Values.ToList();
                 var name = Path.GetFileName(path);
-                var destPath = @"live2d\" + name + @"\";
-                var destTexturePath = @"live2d\" + name + @"\textures\";
-                var destAnimationPath = @"live2d\" + name + @"\motions\";
+                var destPath = Path.Combine("live2d", name) + Path.DirectorySeparatorChar;
+                var destTexturePath = Path.Combine(destPath, "textures") + Path.DirectorySeparatorChar;
+                var destAnimationPath = Path.Combine(destPath, "motions") + Path.DirectorySeparatorChar;
                 Directory.CreateDirectory(destPath);
                 Directory.CreateDirectory(destTexturePath);
                 Directory.CreateDirectory(destAnimationPath);
@@ -38,7 +38,7 @@ namespace UnityLive2DExtractor
                 //MonoBehaviour
                 var monoBehaviours = assets.OfType<MonoBehaviour>().ToArray();
                 //physics
-                var physics = monoBehaviours.First(x =>
+                var physics = monoBehaviours.FirstOrDefault(x =>
                 {
                     if (x.m_Script.TryGet(out var m_Script))
                     {
@@ -46,7 +46,10 @@ namespace UnityLive2DExtractor
                     }
                     return false;
                 });
-                File.WriteAllText($"{destPath}{name}.physics3.json", ParsePhysics(physics));
+                if (physics != null)
+                {
+                    File.WriteAllText($"{destPath}{name}.physics3.json", ParsePhysics(physics));
+                }
                 //moc
                 var moc = monoBehaviours.First(x =>
                 {
@@ -223,11 +226,15 @@ namespace UnityLive2DExtractor
                     {
                         Moc = $"{name}.moc3",
                         Textures = textures.ToArray(),
-                        Physics = $"{name}.physics3.json",
+                        //Physics = $"{name}.physics3.json",
                         Motions = job
                     },
                     Groups = groups.ToArray()
                 };
+                if (physics != null)
+                {
+                    model3.FileReferences.Physics = $"{name}.physics3.json";
+                }
                 File.WriteAllText($"{destPath}{name}.model3.json", JsonConvert.SerializeObject(model3, Formatting.Indented));
             }
             Console.WriteLine("Done!");
