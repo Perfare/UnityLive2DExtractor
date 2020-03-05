@@ -103,7 +103,7 @@ namespace UnityLive2DExtractor
             var path = binding.path;
             id = null;
             target = null;
-            if (bonePathHash.TryGetValue(path, out var boneName))
+            if (path != 0 && bonePathHash.TryGetValue(path, out var boneName))
             {
                 var index = boneName.LastIndexOf('/');
                 id = boneName.Substring(index + 1);

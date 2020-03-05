@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AssetStudio, Version=0.13.25.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="AssetStudio, Version=0.13.27.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>Libraries\AssetStudio.dll</HintPath>
     </Reference>
