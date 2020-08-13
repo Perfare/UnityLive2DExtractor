@@ -26,7 +26,7 @@ namespace UnityLive2DExtractor
                 {
                     continue;
                 }
-                var assets = assetsManager.assetsFileList[0].Objects.Values.ToList();
+                var assets = assetsManager.assetsFileList[0].Objects;
                 var name = Path.GetFileName(path);
                 var destPath = Path.Combine("live2d", name) + Path.DirectorySeparatorChar;
                 var destTexturePath = Path.Combine(destPath, "textures") + Path.DirectorySeparatorChar;
