@@ -13,28 +13,74 @@ namespace UnityLive2DExtractor
     {
         static void Main(string[] args)
         {
-            if (args.Length == 0)
+            if (args.Length != 1)
                 return;
-            foreach (var arg in args)
+            if (!Directory.Exists(args[0]))
+                return;
+            Console.WriteLine($"Loading...");
+            var assetsManager = new AssetsManager();
+            assetsManager.LoadFolder(args[0]);
+            if (assetsManager.assetsFileList.Count == 0)
+                return;
+            var containers = new Dictionary<AssetStudio.Object, string>();
+            var cubismMocs = new List<MonoBehaviour>();
+            foreach (var assetsFile in assetsManager.assetsFileList)
             {
-                if (!File.Exists(arg))
-                    continue;
-                var path = Path.GetFullPath(arg);
-                var assetsManager = new AssetsManager();
-                assetsManager.LoadFiles(path);
-                if (assetsManager.assetsFileList.Count == 0)
+                foreach (var asset in assetsFile.Objects)
                 {
-                    continue;
+                    switch (asset)
+                    {
+                        case MonoBehaviour m_MonoBehaviour:
+                            if (m_MonoBehaviour.m_Script.TryGet(out var m_Script))
+                            {
+                                if (m_Script.m_ClassName == "CubismMoc")
+                                {
+                                    cubismMocs.Add(m_MonoBehaviour);
+                                }
+                            }
+                            break;
+                        case AssetBundle m_AssetBundle:
+                            foreach (var m_Container in m_AssetBundle.m_Container)
+                            {
+                                var preloadIndex = m_Container.Value.preloadIndex;
+                                var preloadSize = m_Container.Value.preloadSize;
+                                var preloadEnd = preloadIndex + preloadSize;
+                                for (int k = preloadIndex; k < preloadEnd; k++)
+                                {
+                                    var pptr = m_AssetBundle.m_PreloadTable[k];
+                                    if (pptr.TryGet(out var obj))
+                                    {
+                                        containers[obj] = m_Container.Key;
+                                    }
+                                }
+                            }
+                            break;
+                    }
                 }
-                var assets = assetsManager.assetsFileList[0].Objects;
-                var name = Path.GetFileName(path);
-                var destPath = Path.Combine("live2d", name) + Path.DirectorySeparatorChar;
+            }
+            var basePathList = new List<string>();
+            foreach (var cubismMoc in cubismMocs)
+            {
+                var container = containers[cubismMoc];
+                var basePath = container.Substring(0, container.LastIndexOf("/"));
+                basePathList.Add(basePath);
+            }
+            var lookup = containers.ToLookup(x => basePathList.Find(b => x.Value.Contains(b)), x => x.Key);
+            var baseDestPath = Path.Combine(Path.GetDirectoryName(args[0]), "Live2DOutput");
+            foreach (var assets in lookup)
+            {
+                if (assets.Key == null)
+                    continue;
+                var name = assets.Key.Substring(assets.Key.LastIndexOf("/") + 1);
+                Console.WriteLine($"Extract {name}");
+
+                var destPath = Path.Combine(baseDestPath, name) + Path.DirectorySeparatorChar;
                 var destTexturePath = Path.Combine(destPath, "textures") + Path.DirectorySeparatorChar;
                 var destAnimationPath = Path.Combine(destPath, "motions") + Path.DirectorySeparatorChar;
                 Directory.CreateDirectory(destPath);
                 Directory.CreateDirectory(destTexturePath);
                 Directory.CreateDirectory(destAnimationPath);
-                Console.WriteLine($"Extract {name}");
+
                 //MonoBehaviour
                 var monoBehaviours = assets.OfType<MonoBehaviour>().ToArray();
                 //physics

@@ -73,12 +73,14 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Libraries\x64\Texture2DDecoderNative.dll">
+	<ContentWithTargetPath Include="Libraries\x64\Texture2DDecoderNative.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Libraries\x86\Texture2DDecoderNative.dll">
+      <TargetPath>x64\Texture2DDecoderNative.dll</TargetPath>
+    </ContentWithTargetPath>
+	<ContentWithTargetPath Include="Libraries\x86\Texture2DDecoderNative.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+      <TargetPath>x86\Texture2DDecoderNative.dll</TargetPath>
+    </ContentWithTargetPath>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
