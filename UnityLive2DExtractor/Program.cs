@@ -55,6 +55,15 @@ namespace UnityLive2DExtractor
                                 }
                             }
                             break;
+                        case ResourceManager m_ResourceManager:
+                            foreach (var m_Container in m_ResourceManager.m_Container)
+                            {
+                                if (m_Container.Value.TryGet(out var obj))
+                                {
+                                    containers[obj] = m_Container.Key;
+                                }
+                            }
+                            break;
                     }
                 }
             }

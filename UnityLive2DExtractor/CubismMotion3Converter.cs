@@ -70,6 +70,11 @@ namespace UnityLive2DExtractor
                         value = m_Event.data
                     });
                 }
+
+                if (iAnim.TrackList.Count == 0 || iAnim.Events.Count == 0)
+                {
+                    Console.WriteLine($"{iAnim.Name} has {iAnim.TrackList.Count} tracks and {iAnim.Events.Count} event!.");
+                }
             }
         }
 
@@ -77,25 +82,31 @@ namespace UnityLive2DExtractor
         {
             var binding = m_ClipBindingConstant.FindBinding(curveKey.index);
             GetLive2dPath(binding, out var target, out var boneName);
-            if (!string.IsNullOrEmpty(boneName))
+            if (string.IsNullOrEmpty(boneName))
             {
-                var track = iAnim.FindTrack(boneName);
-                track.Target = target;
-                track.Curve.Add(new ImportedKeyframe<float>(time, curveKey.value, curveKey.inSlope, curveKey.outSlope, curveKey.coeff));
+                Console.WriteLine($"{iAnim.Name} read fail on binding {Array.IndexOf(m_ClipBindingConstant.genericBindings, binding)}");
+                return;
             }
+
+            var track = iAnim.FindTrack(boneName);
+            track.Target = target;
+            track.Curve.Add(new ImportedKeyframe<float>(time, curveKey.value, curveKey.inSlope, curveKey.outSlope, curveKey.coeff));
         }
 
         private void ReadCurveData(ImportedKeyframedAnimation iAnim, AnimationClipBindingConstant m_ClipBindingConstant, int index, float time, float[] data, int offset, int curveIndex)
         {
             var binding = m_ClipBindingConstant.FindBinding(index);
             GetLive2dPath(binding, out var target, out var boneName);
-            if (!string.IsNullOrEmpty(boneName))
+            if (string.IsNullOrEmpty(boneName))
             {
-                var track = iAnim.FindTrack(boneName);
-                track.Target = target;
-                var value = data[curveIndex];
-                track.Curve.Add(new ImportedKeyframe<float>(time, value, 0, 0, null));
+                Console.WriteLine($"{iAnim.Name} read fail on binding {Array.IndexOf(m_ClipBindingConstant.genericBindings, binding)}");
+                return;
             }
+
+            var track = iAnim.FindTrack(boneName);
+            track.Target = target;
+            var value = data[curveIndex];
+            track.Curve.Add(new ImportedKeyframe<float>(time, value, 0, 0, null));
         }
 
         private void GetLive2dPath(GenericBinding binding, out string target, out string id)
@@ -117,9 +128,8 @@ namespace UnityLive2DExtractor
                     target = "PartOpacity";
                 }
             }
-            else
+            else if (binding.script.TryGet(out MonoScript script))
             {
-                binding.script.TryGet(out MonoScript script);
                 switch (script.m_ClassName)
                 {
                     case "CubismRenderController":
