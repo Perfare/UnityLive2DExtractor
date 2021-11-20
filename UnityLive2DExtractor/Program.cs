@@ -82,9 +82,9 @@ namespace UnityLive2DExtractor
                 if (key == null)
                     continue;
                 var name = key.Substring(key.LastIndexOf("/") + 1);
-                Console.WriteLine($"Extract {name}");
+                Console.WriteLine($"Extract {key}");
 
-                var destPath = Path.Combine(baseDestPath, name) + Path.DirectorySeparatorChar;
+                var destPath = Path.Combine(baseDestPath, key) + Path.DirectorySeparatorChar;
                 var destTexturePath = Path.Combine(destPath, "textures") + Path.DirectorySeparatorChar;
                 var destAnimationPath = Path.Combine(destPath, "motions") + Path.DirectorySeparatorChar;
                 Directory.CreateDirectory(destPath);
