@@ -67,13 +67,7 @@ namespace UnityLive2DExtractor
                     }
                 }
             }
-            var basePathList = new List<string>();
-            foreach (var cubismMoc in cubismMocs)
-            {
-                var container = containers[cubismMoc];
-                var basePath = container.Substring(0, container.LastIndexOf("/"));
-                basePathList.Add(basePath);
-            }
+            var basePathList = cubismMocs.Select(cubismMoc => containers[cubismMoc]).Select(container => container).ToList();
             var lookup = containers.ToLookup(x => basePathList.Find(b => x.Value.Contains(b)), x => x.Key);
             var baseDestPath = Path.Combine(Path.GetDirectoryName(args[0]), "Live2DOutput");
             foreach (var assets in lookup)
